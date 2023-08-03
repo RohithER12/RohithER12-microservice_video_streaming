@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
@@ -18,9 +19,18 @@ func NewVideoHandler(client interfaces.VideoClient) VideoHandler {
 	}
 }
 
+func (cr *VideoHandler) GetUploadVideo(c *gin.Context) {
+	c.HTML(http.StatusOK, "upload.html", nil)
+}
+
+func (cr *VideoHandler) Video(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", nil)
+}
+
 func (cr *VideoHandler) UploadVideo(c *gin.Context) {
 	file, err := c.FormFile("video")
 	if err != nil {
+		fmt.Println(file)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "failed to find the file",
 			"error":   err.Error(),
@@ -33,6 +43,10 @@ func (cr *VideoHandler) UploadVideo(c *gin.Context) {
 			"message": "failed to upload",
 			"error":   err1.Error(),
 		})
+		return
+	}
+	if res.Status == http.StatusOK {
+		c.Redirect(http.StatusSeeOther, "/video")
 		return
 	}
 	c.JSON(int(res.Status), gin.H{
@@ -81,5 +95,9 @@ func (cr *VideoHandler) FindAllVideo(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(int(res.Status), &res)
+
+	c.Header("Content-Type", "application/json")
+	c.JSON(http.StatusOK, gin.H{
+		"Video": res.Videos,
+	})
 }

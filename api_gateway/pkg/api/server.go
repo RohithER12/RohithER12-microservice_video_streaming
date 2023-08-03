@@ -17,6 +17,8 @@ type Server struct {
 func NewServeHTTP(c *config.Config, videoHandler handler.VideoHandler) (*Server, error) {
 	engine := gin.New()
 	engine.Use(gin.Logger())
+	engine.LoadHTMLGlob("template/*.html")
+	engine.Static("/static", "./static")
 	routes.RegisterVideoRoutes(engine.Group("/"), videoHandler)
 	engine.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{
