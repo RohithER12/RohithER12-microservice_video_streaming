@@ -12,6 +12,7 @@ func main() {
 	if configerr != nil {
 		log.Fatal("cannot load config:", configerr)
 	}
+
 	server, dierr := di.InitializeAPI(c)
 	if dierr != nil {
 		log.Fatal("cannot initialize server", dierr)
