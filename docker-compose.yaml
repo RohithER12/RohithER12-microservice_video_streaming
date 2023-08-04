@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  db-video:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=rohith
+      - POSTGRES_PASSWORD=892328
+      - POSTGRES_DB=video_streaming
+    networks:
+      - mynet
+    ports:
+      - 8082:5432
+    volumes:
+      - video-db:/var/lib/postgresql/data
+
+  video_service:
+    image: streaming_videoservice:0.1
+    env_file:
+      - ./video_service/.env
+    networks:
+      - mynet
+    ports:
+      - 4000:4000
+    volumes:
+      - ./video_service:/usr/src/app
+    depends_on:
+      - db-video
+
+  api_gateway:
+    image: streaming_apigateway:0.4
+    env_file:
+      - ./api_gateway/.env
+    networks:
+      - mynet
+    ports:
+      - 3000:3000
+    volumes:
+      - ./api_gateway:/usr/src/app
+    depends_on:
+      - video_service
+
+volumes:
+  video-db:
+
+networks:
+  mynet:
+    driver: bridge
